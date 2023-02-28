@@ -1,0 +1,181 @@
+
+import Debug.Trace
+import Char
+import List 
+-- задание 1:
+--checkPassword "DENIS1234"
+--checkPassword "Denis1234"
+--checkPassword "DENISSSSS"
+--checkPassword "denis123"
+
+checkPassword :: String -> Bool
+checkPassword password = (count password 0 < 3) && (even (numsum password 0)) && (not (elem (head password) ['0'..'9']))
+     where count ""     acc = acc
+           count (x:xs) acc | elem x ['A'..'Z'] = count xs (acc + 1)
+                            | otherwise         = count xs acc
+           numsum ""     acc = acc
+           numsum (x:xs) acc | elem x  ['0'..'9'] = numsum xs (read (x : "") + acc)
+                             | otherwise          = numsum xs acc
+
+-- задание 2:
+swap key char = if (elem char (['a'..'z'] ++ ['A'..'Z'])) then (func char) else char
+                where func c | isLower c = chr ((((ord c) - 97 + key) `mod` 26) + 97) 
+                             | otherwise = chr ((((ord c) - 65 + key) `mod` 26) + 65)
+-- 97 символ юникода - a
+-- 65 символ юникода - A 
+ 
+cesarCode key text = map (swap key) text
+
+-- A10 - DCCLIII
+ -- cesarCode 2 "I have many favourite artists. Among them are writers, painters and musicians. When I have free time I often read my favourite books or listen to my favourite music. When I have a spare day, I sometimes visit Kiev Museum of Russian Art. I like the museum, for there are many masterpieces there. But the most interesting works for me are the paintings by Ivan Aivazovsky."
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- задание 3:
+findoper (x:xs) i | x == '+'  = (i, (+))
+                  | x == '-'  = (i, (-))
+                  | otherwise = findoper xs (i + 1)
+
+split text = if (elem ')' (take k text)) then (take k text, drop (k + 1) text) 
+                                         else (drop (k + 1) text, take k text) 
+             where k = fst (findoper text 0)
+
+getSS text = read (drop 1 (takeWhile (/= ')') (dropWhile (/= '(') text))) + 0
+
+translateSS k num = f k (reverse num) 0 where f k   ""   _                     = 0
+                                              f k (x:xs) i | elem x ['0'..'9'] = (read [x] + 0) * (k ^ i) + (f k xs (i + 1))
+                                                           | x == 'A'          = 10 * (k ^ i) + (f k xs (i + 1))
+                                                           | x == 'B'          = 11 * (k ^ i) + (f k xs (i + 1))
+                                                           | x == 'C'          = 12 * (k ^ i) + (f k xs (i + 1))
+                                                           | x == 'D'          = 13 * (k ^ i) + (f k xs (i + 1))
+                                                           | x == 'E'          = 14 * (k ^ i) + (f k xs (i + 1))
+                                                           | x == 'F'          = 15 * (k ^ i) + (f k xs (i + 1))
+                                                           | otherwise         = 0
+
+fromRome:: Char -> Integer
+fromRome x
+                                             | x == 'I'  = 1  
+                                             | x == 'V'  = 5   
+                                             | x == 'X'  = 10  
+                                             | x == 'L'  = 50  
+                                             | x == 'C'  = 100 
+                                             | x == 'D'  = 500 
+                                             | x == 'M'  = 1000
+                                             | otherwise = 0
+
+
+ 
+translateRome []= 0
+translateRome (h:[]) =  (fromRome h) 
+translateRome (h:num) | fromRome (head(num))>=(fromRome h) =  -(fromRome h)+ (translateRome num) 
+                      | True =  (fromRome h) + (translateRome num) 
+                      
+                                            
+
+calculate text = (snd (findoper text 0)) (translateSS (getSS text) a) (translateRome b)
+                     where a = takeWhile (/= '(') (fst (split text))
+                           b = snd (split text) 
+
+-- calculate "A10(16)-DCCLIII"      
+ 
+
+
+
+
+
+
+
+
+
+-- Содержится ли первый аргумент в списке, заданным вторым
+memb :: (Eq a) => a -> [a] -> Bool
+memb x [] = False
+memb x (y:ys) = if (y == x) then True else memb x ys
+ 
+-- Построить множество элементов (удалить повторяющиеся)
+setof :: (Eq a) => [a] -> [a]
+setof [] = []
+setof (x:xs) = if memb x (setof xs) then setof xs else x:(setof xs) 
+ 
+-- пересечение
+inter :: (Eq a) => [a] -> [a] -> [a]
+inter x [] = []
+inter [] y = []
+inter (x:xs) y = setof (if memb x y then x:(inter xs y) else (inter xs y)) 
+
+func a b c = (inter a b)\\ ([1..10] \\ c)
+
+-- задание 4:
+-- setfunc [1, 2, 3, 4] [1, 2, 3, 5, 6, 7, 8, 9] [1, 2,3,4] 
+setfunc a b c = setsub (setadd a b) (setnot c)
+                where uniset = [1..10]
+
+                      setadd []     ys = ys
+                      setadd (x:xs) ys = if (elem x ys) then (x : setadd xs ys) else (setadd xs ys)
+
+                      setsub []     ys = []
+                      setsub (x:xs) ys = if (elem x ys) then (setsub xs ys) else (x : setsub xs ys)
+
+                      setnot xs = setsub uniset xs
+
+
+-- задание 5:
+-- printStatus 23
+printStatus :: Integer -> String
+printStatus age = show age ++ " " ++ status age where
+     status age | age >= 0  && age <=  6 = "Predschooler"
+                | age >= 7  && age <= 17 = "Schooler"
+                | age >= 18 && age <= 22 = "Student"
+                | age >= 23 && age <= 55 = "Worker"
+                | age >= 55 && age <= 90 = "Pensioneer"
+                | otherwise              = error "Age out of range"
+
+-- задание 6 
+ 
+
+sum :: String -> String -> Integer
+sum n1 n2 = sxtnToInt(n1) + twoToInt(n2)
+
+sxtnToInt :: String -> Integer
+sxtnToInt (x:[]) = sxtnCharToInt(x)
+sxtnToInt (x:y:xs) = if sxtnCharToInt(x) > sxtnCharToInt(y)
+				then sxtnCharToInt(x) + sxtnToInt(y:xs)
+				else -sxtnCharToInt(x) + sxtnToInt(y:xs)
+
+sxtnCharToInt :: Char -> Integer
+sxtnCharToInt 'I' = 1
+sxtnCharToInt 'V' = 5
+sxtnCharToInt 'X' = 10
+sxtnCharToInt 'L' = 50
+sxtnCharToInt 'C' = 100
+sxtnCharToInt 'D' = 500
+sxtnCharToInt 'M' = 1000
+
+twoToInt :: String -> Integer
+twoToInt "" = 0
+twoToInt (x:xs) = (twoCharToInt(x) * (2 ^ length(xs))) + twoToInt(xs)
+
+twoCharToInt :: Char -> Integer
+twoCharToInt '0' = 0
+twoCharToInt '1' = 1
+
+-- Main> xx where xx = [trace (show x) sxtnCharToInt x | x <- ['I', 'V', 'X', 'L', 'C', 'D', 'M']]
+-- ['I'
+-- 1,'V'
+-- 5,'X'
+-- 10,'L'
+-- 50,'C'
+-- 100,'D'
+-- 500,'M'
+-- 1000]
+-- Вывод сначала значения (стринг через show) а потом численного представления

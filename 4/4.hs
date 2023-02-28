@@ -97,4 +97,25 @@ goo n = reverse (g [4,3,1,1] n 1) !! (n - 1)
 numsum x | div x 10 == 0 = x
          | otherwise = (mod x 10) + numsum (div x 10)
 
-rez = numsum (foo 100) 
+ 
+
+dropc :: [a]->Int->[a]
+dropc xs 0 = xs
+dropc [] _ = []
+dropc (x:xs) n = dropc xs (n-1)
+
+
+take1:: Int ->[a]->[a]
+take1 0 xs = []
+take1 _ [] = error "index too large"
+take1 n (x:xs) = x: take1 (n-1) xs
+
+--myzip [1..5] ['a'..'z'] → [(1,'a'),(2,'b'),(3,'c'),(4,'d'),(5,'e')].  
+
+myzip :: [a]->[b]->[(a,b)]
+myzip (x:xs) (y:ys) = (x, y) : myzip xs ys 
+myzip _ _ = [] 
+
+
+foldr f z [] = z
+foldr f z (x:xs) = f x (foldr f z xs)
